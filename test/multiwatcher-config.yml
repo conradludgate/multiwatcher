@@ -1,0 +1,58 @@
+loglevel: debug
+
+stage1:
+  recursive: false # default
+
+  files:
+    - '.*'           # Watch all files
+    - '^\..*': 
+      exclude: true # But don't watch dotfiles
+    - '\.env$':      # But do watch .env files
+
+  cmd:
+    - sh
+    - -c
+    - echo test a $MW_TRIGGER b $MW_FILE c $MW_STAGE # Use environment variables set by the watcher
+
+stage2:
+  depends:
+    - stage1 # Will re-run when stage1 finishes running
+
+  dir: foo # Change watch dir
+
+  cmd:
+    - sh
+    - -c
+    - echo foo a $MW_TRIGGER b $MW_FILE c $MW_STAGE
+
+  early-terminate: false
+
+stage11:
+  depends:
+    - stage1:
+      async: true # Will re-run after stage1 starts
+
+  files: 
+    - ".*": 
+      exclude: true # Don't watch anything
+
+  start: false
+
+  cmd: 
+    - sh
+    - -c
+    - echo hello stage1 👋 a $MW_TRIGGER b $MW_FILE c $MW_STAGE
+
+stage3:
+  depends:
+    - stage2:
+      async: true
+
+  files: 
+    - ".*": 
+      exclude: true # Don't watch anything
+
+  cmd:
+    - sh
+    - -c
+    - echo lolololol a $MW_TRIGGER b $MW_FILE c $MW_STAGE
